@@ -9,6 +9,7 @@ class DB:
 
         # enforce foreign keys for this connection
         self.conn.execute("PRAGMA foreign_keys = ON")
+        self.conn.row_factory = sqlite3.Row
 
         self.__init_schema()
 
@@ -37,4 +38,3 @@ class DB:
 
     def close(self) -> None:
         self.conn.close()
-
