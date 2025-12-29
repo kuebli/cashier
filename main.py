@@ -1,5 +1,8 @@
+from app.db.db import DB
+
+
 def main():
-    print("Hello from cashier!")
+    db = DB()
 
 
 if __name__ == "__main__":
