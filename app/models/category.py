@@ -1,11 +1,8 @@
 from dataclasses import dataclass
 
+from app.models.base_model import BaseModel
+
 
 @dataclass
-class Category:
-    id: int
+class Category(BaseModel):
     name: str
-
-    def __init__(self, id: int, name: str) -> None:
-        self.id = id
-        self.name = name

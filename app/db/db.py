@@ -19,7 +19,9 @@ class DB:
         cur.execute("""
         CREATE TABLE IF NOT EXISTS categories (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL
+            name TEXT NOT NULL,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         )
         """)
 
@@ -29,9 +31,37 @@ class DB:
             name TEXT NOT NULL,
             price FLOAT NOT NULL,
             category_id INTEGER NOT NULL,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
         )
         """)
+
+        cur.execute("""
+        CREATE TRIGGER IF NOT EXISTS categories_updated_at
+        AFTER UPDATE ON categories
+        FOR EACH ROW
+        WHEN NEW.updated_at = OLD.updated_at
+        BEGIN
+            UPDATE categories
+            SET updated_at = CURRENT_TIMESTAMP
+            WHERE id = OLD.id;
+        END;
+        """)
+
+        cur.execute("""
+        CREATE TRIGGER IF NOT EXISTS articles_updated_at
+        AFTER UPDATE ON articles
+        FOR EACH ROW
+        WHEN NEW.updated_at = OLD.updated_at
+        BEGIN
+            UPDATE articles
+            SET updated_at = CURRENT_TIMESTAMP
+            WHERE id = OLD.id;
+        END;
+        """)
+
+        self.conn.commit()
 
     def connect(self) -> sqlite3.Connection:
         return self.conn

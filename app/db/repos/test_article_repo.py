@@ -23,7 +23,9 @@ class TestArticleRepo(unittest.TestCase):
         article_id = self.article_repo.create("Testarticle", 1.5, self.category_id)
         assert article_id is not None
         result = self.article_repo.get_one(article_id)
-        expected = Article(article_id, "Testarticle", 1.5, self.category_id)
+        expected = Article(
+            id=article_id, name="Testarticle", price=1.5, category_id=self.category_id
+        )
         self.assertEqual(result, expected)
 
     def test_get_one_negative(self):
@@ -35,8 +37,12 @@ class TestArticleRepo(unittest.TestCase):
         self.article_repo.create("Testarticle 2", 1.80, self.category_id)
         articles = self.article_repo.get_all()
         expected = [
-            Article(1, "Testarticle 1", 1.50, self.category_id),
-            Article(2, "Testarticle 2", 1.80, self.category_id),
+            Article(
+                id=1, name="Testarticle 1", price=1.50, category_id=self.category_id
+            ),
+            Article(
+                id=2, name="Testarticle 2", price=1.80, category_id=self.category_id
+            ),
         ]
         self.assertEqual(articles, expected)
 
@@ -54,8 +60,8 @@ class TestArticleRepo(unittest.TestCase):
         articles = self.article_repo.get_all(category_id=category_2)
 
         expected = [
-            Article(3, "Testarticle 3", 1.80, category_2),
-            Article(4, "Testarticle 4", 1.90, category_2),
+            Article(id=3, name="Testarticle 3", price=1.80, category_id=category_2),
+            Article(id=4, name="Testarticle 4", price=1.90, category_id=category_2),
         ]
 
         self.assertEqual(articles, expected)
@@ -76,7 +82,9 @@ class TestArticleRepo(unittest.TestCase):
 
         article_updated = self.article_repo.get_one(article_id)
         assert article_updated is not None
-        expected = Article(1, "Testarticle 2", 2.05, self.category_id)
+        expected = Article(
+            id=1, name="Testarticle 2", price=2.05, category_id=self.category_id
+        )
         self.assertEqual(article_updated, expected)
 
     def test_delete(self):

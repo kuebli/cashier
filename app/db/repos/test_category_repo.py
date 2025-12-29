@@ -16,14 +16,17 @@ class TestCategoryRepo(unittest.TestCase):
 
     def test_get_one(self) -> None:
         self.category_repo.create("Testcategory 1")
-        expected = Category(1, "Testcategory 1")
+        expected = Category(id=1, name="Testcategory 1")
         result = self.category_repo.get_one(1)
         self.assertEqual(result, expected)
 
     def test_get_all(self) -> None:
         self.category_repo.create("Testcategory 1")
         self.category_repo.create("Testcategory 2")
-        expected = [Category(1, "Testcategory 1"), Category(2, "Testcategory 2")]
+        expected = [
+            Category(id=1, name="Testcategory 1"),
+            Category(id=2, name="Testcategory 2"),
+        ]
         result = self.category_repo.get_all()
         self.assertIsNotNone(result)
         self.assertEqual(result, expected)
@@ -32,7 +35,7 @@ class TestCategoryRepo(unittest.TestCase):
         category_id = self.category_repo.create("Testcategory 1")
         self.assertIsNotNone(category_id)
 
-        category = Category(1, "Testcategory updated")
+        category = Category(id=1, name="Testcategory updated")
         updated = self.category_repo.update(category)
 
         self.assertTrue(updated)
@@ -44,7 +47,7 @@ class TestCategoryRepo(unittest.TestCase):
         category_id = self.category_repo.create("Testcategory 1")
         self.assertIsNotNone(category_id)
 
-        deleted = self.category_repo.delete(Category(1, "Testcategory 1"))
+        deleted = self.category_repo.delete(Category(id=1, name="Testcategory 1"))
         self.assertTrue(deleted)
 
         self.assertIsNone(self.category_repo.get_one(1))

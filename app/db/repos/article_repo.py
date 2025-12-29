@@ -2,6 +2,7 @@ from typing import List
 from app.db.db import DB
 from app.db.repos.category_repo import CategoryRepo
 from app.models.article import Article
+from datetime import datetime
 
 
 class ArticleRepo:
@@ -29,7 +30,7 @@ class ArticleRepo:
             with self.db.connect() as conn:
                 cur = conn.cursor()
                 cur.execute(
-                    "SELECT id, name, price, category_id FROM articles WHERE id = ?",
+                    "SELECT id, name, price, category_id, created_at, updated_at FROM articles WHERE id = ?",
                     (id,),
                 )
                 row = cur.fetchone()
@@ -41,6 +42,8 @@ class ArticleRepo:
                     name=row["name"],
                     price=row["price"],
                     category_id=row["category_id"],
+                    created_at=datetime.fromisoformat(row["created_at"]),
+                    updated_at=datetime.fromisoformat(row["updated_at"]),
                 )
         except Exception as e:
             print("Database Error: ", e)
@@ -54,11 +57,13 @@ class ArticleRepo:
                     if self.category_repo.get_one(category_id) is None:
                         raise ValueError(f"Category with id {category_id} not found")
                     cur.execute(
-                        "SELECT id, name, price, category_id FROM articles WHERE category_id = ?",
+                        "SELECT id, name, price, category_id, created_at, updated_at FROM articles WHERE category_id = ?",
                         (category_id,),
                     )
                 else:
-                    cur.execute("SELECT id, name, price, category_id FROM articles")
+                    cur.execute(
+                        "SELECT id, name, price, category_id, created_at, updated_at FROM articles"
+                    )
                 rows = cur.fetchall()
                 articles = []
                 for row in rows:
@@ -68,6 +73,8 @@ class ArticleRepo:
                             name=row["name"],
                             price=row["price"],
                             category_id=row["category_id"],
+                            created_at=datetime.fromisoformat(row["created_at"]),
+                            updated_at=datetime.fromisoformat(row["updated_at"]),
                         )
                     )
                 return articles

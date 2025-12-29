@@ -2,6 +2,7 @@ import sqlite3
 from typing import List
 from app.db.db import DB
 from app.models.category import Category
+from datetime import datetime
 
 
 class CategoryRepo:
@@ -22,26 +23,43 @@ class CategoryRepo:
         try:
             with self.db.connect() as conn:
                 cur = conn.cursor()
-                cur.execute("SELECT id, name FROM categories WHERE id = ?", (id,))
+                cur.execute(
+                    "SELECT id, name, created_at, updated_at FROM categories WHERE id = ?",
+                    (id,),
+                )
                 row = cur.fetchone()
-                return Category(id=row["id"], name=row["name"])
+                if row is None:
+                    return None
+                return Category(
+                    id=row["id"],
+                    name=row["name"],
+                    created_at=datetime.fromisoformat(row["created_at"]),
+                    updated_at=datetime.fromisoformat(row["updated_at"]),
+                )
         except Exception as e:
             print("DB Error: ", e)
             return None
 
-    def get_all(self) -> List[Category] | None:
+    def get_all(self) -> List[Category]:
         try:
             with self.db.connect() as conn:
                 categories = []
                 cur = conn.cursor()
-                cur.execute("SELECT id, name FROM categories")
+                cur.execute("SELECT id, name, created_at, updated_at FROM categories")
                 rows = cur.fetchall()
                 for row in rows:
-                    categories.append(Category(id=row["id"], name=row["name"]))
+                    categories.append(
+                        Category(
+                            id=row["id"],
+                            name=row["name"],
+                            created_at=datetime.fromisoformat(row["created_at"]),
+                            updated_at=datetime.fromisoformat(row["updated_at"]),
+                        )
+                    )
                 return categories
         except sqlite3.Error as e:
             print("DB Error: ", e)
-            return None
+            return []
 
     def update(self, category: Category) -> bool:
         try:
