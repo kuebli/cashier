@@ -17,9 +17,15 @@ class TestDB(unittest.TestCase):
         )
         self.assertIsNotNone(cur.fetchone())
 
-        # check if table categories exists
+        # check if table articles exists
         cur.execute(
             "SELECT name FROM sqlite_master WHERE type='table' AND name='articles'"
+        )
+        self.assertIsNotNone(cur.fetchone())
+
+        # check if table carts exists
+        cur.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='carts'"
         )
         self.assertIsNotNone(cur.fetchone())
 

@@ -56,11 +56,14 @@ class ArticleRepo:
                 if category_id is not None:
                     if self.category_repo.get_one(category_id) is None:
                         raise ValueError(f"Category with id {category_id} not found")
-                    cur.execute(
-                        "SELECT id, name, price, category_id, created_at, updated_at FROM articles WHERE category_id = ?",
-                        (category_id,),
-                    )
+                    else:
+                        print(f"Category found: {category_id}")
+                        cur.execute(
+                            "SELECT id, name, price, category_id, created_at, updated_at FROM articles WHERE category_id = ?",
+                            (category_id,),
+                        )
                 else:
+                    print("No Category found")
                     cur.execute(
                         "SELECT id, name, price, category_id, created_at, updated_at FROM articles"
                     )

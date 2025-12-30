@@ -38,6 +38,31 @@ class DB:
         """)
 
         cur.execute("""
+        CREATE TABLE IF NOT EXISTS carts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            paid BOOL NOT NULL DEFAULT FALSE,
+            total FLOAT DEFAULT 0.0,
+            paid_at TEXT,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+        """)
+
+        cur.execute("""
+        CREATE TABLE IF NOT EXISTS m2m_carts_articles (
+            id INTEGER PRIMARY KEY NOT NULL,
+            article_id INTERGER NOT NULL,
+            cart_id INTEGER NOT NULL,
+            quantity INTEGER NOT NULL,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(article_id) REFERENCES articles(id) ON DELETE CASCADE,
+            FOREIGN KEY(cart_id) REFERENCES carts(id) ON DELETE CASCADE,
+            UNIQUE(article_id, cart_id)
+        )
+        """)
+
+        cur.execute("""
         CREATE TRIGGER IF NOT EXISTS categories_updated_at
         AFTER UPDATE ON categories
         FOR EACH ROW
@@ -61,6 +86,29 @@ class DB:
         END;
         """)
 
+        cur.execute("""
+        CREATE TRIGGER IF NOT EXISTS carts_updated_at
+        AFTER UPDATE ON carts
+        FOR EACH ROW
+        WHEN NEW.updated_at = OLD.updated_at
+        BEGIN
+            UPDATE carts
+            SET updated_at = CURRENT_TIMESTAMP
+            WHERE id = OLD.id;
+        END;
+        """)
+
+        cur.execute("""
+        CREATE TRIGGER IF NOT EXISTS m2m_carts_articles_updated_at
+        AFTER UPDATE ON m2m_carts_articles
+        FOR EACH ROW
+        WHEN NEW.updated_at = OLD.updated_at
+        BEGIN
+            UPDATE m2m_carts_articles
+            SET updated_at = CURRENT_TIMESTAMP
+            WHERE id = OLD.id;
+        END;
+        """)
         self.conn.commit()
 
     def connect(self) -> sqlite3.Connection:
