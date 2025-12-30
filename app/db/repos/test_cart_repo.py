@@ -12,7 +12,7 @@ class TestCartRepo(unittest.TestCase):
         self.db = DB(":memory:")
         self.category_repo = CategoryRepo(self.db)
         self.article_repo = ArticleRepo(self.db, self.category_repo)
-        self.cart_repo = CartRepo(self.db, self.article_repo)
+        self.cart_repo = CartRepo(self.db)
 
         self.category_id = self.category_repo.create("Testcategory")
         assert self.category_id is not None
@@ -33,7 +33,7 @@ class TestCartRepo(unittest.TestCase):
         assert cart_id is not None
 
         cart = self.cart_repo.get_one(cart_id)
-        expected = Cart(id=1, total=0.0, paid=False, articles=[])
+        expected = Cart(id=1, paid=False, items=[])
 
         self.assertEqual(cart, expected)
 
@@ -49,8 +49,8 @@ class TestCartRepo(unittest.TestCase):
 
         cart = self.cart_repo.get_all()
         expected = [
-            Cart(id=1, total=0.0, paid=False, articles=[]),
-            Cart(id=2, total=0.0, paid=False, articles=[]),
+            Cart(id=1, paid=False, items=[]),
+            Cart(id=2, paid=False, items=[]),
         ]
 
         self.assertEqual(cart, expected)
@@ -65,14 +65,13 @@ class TestCartRepo(unittest.TestCase):
         cart = self.cart_repo.get_one(cart_id)
         assert cart is not None
 
-        cart.total = 10.0
         cart.paid = True
 
         updated = self.cart_repo.update(cart)
         self.assertTrue(updated)
 
         cart_updated = self.cart_repo.get_one(cart_id)
-        expected = Cart(id=1, total=10.0, paid=True, articles=[])
+        expected = Cart(id=1, paid=True, items=[])
 
         self.assertEqual(cart_updated, expected)
 

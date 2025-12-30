@@ -2,13 +2,11 @@ from datetime import datetime
 from typing import List, Optional
 from app.db.db import DB
 from app.models.cart import Cart
-from app.db.repos.article_repo import ArticleRepo
 
 
 class CartRepo:
-    def __init__(self, db: DB, article_repo: ArticleRepo) -> None:
+    def __init__(self, db: DB) -> None:
         self.db = db
-        self.article_repo = article_repo
 
     def create(self) -> Optional[int]:
         try:
@@ -26,7 +24,7 @@ class CartRepo:
             with self.db.connect() as conn:
                 cur = conn.cursor()
                 cur.execute(
-                    "SELECT id, total, paid, paid_at, created_at, updated_at FROM carts WHERE id = ?",
+                    "SELECT id, paid, paid_at, created_at, updated_at FROM carts WHERE id = ?",
                     (cart_id,),
                 )
                 row = cur.fetchone()
@@ -34,16 +32,15 @@ class CartRepo:
                 if row is None:
                     return None
 
-                articles = []
+                items = []
 
                 return Cart(
                     id=row["id"],
-                    total=row["total"],
                     paid=row["paid"],
                     paid_at=row["paid_at"],
                     created_at=datetime.fromisoformat(row["created_at"]),
                     updated_at=datetime.fromisoformat(row["updated_at"]),
-                    articles=articles,
+                    items=items,
                 )
 
         except Exception as e:
@@ -55,7 +52,7 @@ class CartRepo:
             with self.db.connect() as conn:
                 cur = conn.cursor()
                 cur.execute(
-                    "SELECT id, total, paid, paid_at, created_at, updated_at FROM carts"
+                    "SELECT id, paid, paid_at, created_at, updated_at FROM carts"
                 )
 
                 rows = cur.fetchall()
@@ -65,12 +62,11 @@ class CartRepo:
                     carts.append(
                         Cart(
                             id=row["id"],
-                            total=row["total"],
                             paid=row["paid"],
                             paid_at=row["paid_at"],
                             created_at=datetime.fromisoformat(row["created_at"]),
                             updated_at=datetime.fromisoformat(row["updated_at"]),
-                            articles=[],
+                            items=[],
                         )
                     )
 
@@ -85,8 +81,8 @@ class CartRepo:
             with self.db.connect() as conn:
                 cur = conn.cursor()
                 cur.execute(
-                    "UPDATE carts SET total = ?, paid = ?, paid_at = ? WHERE id = ?",
-                    (cart.total, cart.paid, cart.paid_at, cart.id),
+                    "UPDATE carts SET paid = ?, paid_at = ? WHERE id = ?",
+                    (cart.paid, cart.paid_at, cart.id),
                 )
 
                 return cur.rowcount == 1

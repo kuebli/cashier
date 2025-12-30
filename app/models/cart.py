@@ -1,13 +1,15 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List
-from app.models.article import Article
 from app.models.base_model import BaseModel
+from app.models.cart_item import CartItem
 
 
 @dataclass(kw_only=True)
 class Cart(BaseModel):
-    total: float
     paid: bool
     paid_at: datetime | None = field(default=None, compare=False)
-    articles: List[Article]
+    items: List[CartItem]
+
+    def total(self) -> float:
+        return sum([item.unit_price + item.quantity for item in self.items])

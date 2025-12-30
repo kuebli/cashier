@@ -9,6 +9,8 @@ class DB:
 
         # enforce foreign keys for this connection
         self.conn.execute("PRAGMA foreign_keys = ON")
+
+        # get kw for fetchone and fetchall instead of index
         self.conn.row_factory = sqlite3.Row
 
         self.__init_schema()
@@ -41,7 +43,6 @@ class DB:
         CREATE TABLE IF NOT EXISTS carts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             paid BOOL NOT NULL DEFAULT FALSE,
-            total FLOAT DEFAULT 0.0,
             paid_at TEXT,
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -54,6 +55,7 @@ class DB:
             article_id INTERGER NOT NULL,
             cart_id INTEGER NOT NULL,
             quantity INTEGER NOT NULL,
+            unit_price float NOT NULL,
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY(article_id) REFERENCES articles(id) ON DELETE CASCADE,
