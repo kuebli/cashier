@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from app.db.db import DB
 from app.db.repos.category_repo import CategoryRepo
 from app.models.article import Article
@@ -49,22 +49,28 @@ class ArticleRepo:
             print("Database Error: ", e)
             return None
 
-    def get_all(self, category_id=None) -> List[Article]:
+    def get_all(
+        self, category_id=None, search_text: Optional[str] = None
+    ) -> List[Article]:
         try:
             with self.db.connect() as conn:
                 cur = conn.cursor()
+                query = "SELECT id, name, price, category_id, created_at, updated_at FROM articles"
+                params = []
+
                 if category_id is not None:
                     if self.category_repo.get_one(category_id) is None:
                         raise ValueError(f"Category with id {category_id} not found")
                     else:
-                        cur.execute(
-                            "SELECT id, name, price, category_id, created_at, updated_at FROM articles WHERE category_id = ?",
-                            (category_id,),
-                        )
-                else:
-                    cur.execute(
-                        "SELECT id, name, price, category_id, created_at, updated_at FROM articles"
-                    )
+                        query += " WHERE category_id = ?"
+                        params.append(category_id)
+
+                if search_text is not None:
+                    query += " AND" if "WHERE" in query else " WHERE"
+                    query += " name LIKE ?"
+                    params.append(f"%{search_text}%")
+
+                cur.execute(query, params)
                 rows = cur.fetchall()
                 articles = []
                 for row in rows:

@@ -69,6 +69,21 @@ class TestArticleRepo(unittest.TestCase):
 
         self.assertEqual(articles, expected)
 
+    def test_get_all_with_search_text(self):
+        assert self.category_id is not None
+
+        self.article_repo.create("Testarticle 1", 1.50, self.category_id)
+        self.article_repo.create("Testarticle 2", 1.80, self.category_id)
+
+        articles = self.article_repo.get_all(search_text="1")
+        expected = [
+            Article(
+                id=1, name="Testarticle 1", price=1.50, category_id=self.category_id
+            ),
+        ]
+
+        self.assertEqual(articles, expected)
+
     def test_update(self):
         assert self.category_id is not None
 
