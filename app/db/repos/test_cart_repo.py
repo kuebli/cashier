@@ -24,6 +24,9 @@ class TestCartRepo(unittest.TestCase):
             "Testarticle2", 1.80, self.category_id
         )
 
+    def tearDown(self) -> None:
+        self.db.close()
+
     def test_create(self):
         cart_id = self.cart_repo.create()
         self.assertEqual(cart_id, 1)

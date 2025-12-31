@@ -36,6 +36,9 @@ class TestCartItemRepo(unittest.TestCase):
         self.cart1 = self.cart_repo.get_one(self.cart_id1)
         self.cart2 = self.cart_repo.get_one(self.cart_id2)
 
+    def tearDown(self) -> None:
+        self.db.close()
+
     def test_create(self):
         assert self.cart1 is not None
         assert self.article1 is not None
@@ -56,6 +59,7 @@ class TestCartItemRepo(unittest.TestCase):
             article_id=self.article1.id,
             cart_id=self.cart1.id,
             quantity=2,
+            article_name=self.article1.name,
             unit_price=1.5,
         )
 
@@ -85,6 +89,7 @@ class TestCartItemRepo(unittest.TestCase):
                 article_id=self.article1.id,
                 cart_id=self.cart1.id,
                 quantity=2,
+                article_name=self.article1.name,
                 unit_price=self.article1.price,
             ),
             CartItem(
@@ -92,6 +97,7 @@ class TestCartItemRepo(unittest.TestCase):
                 article_id=self.article2.id,
                 cart_id=self.cart1.id,
                 quantity=4,
+                article_name=self.article2.name,
                 unit_price=self.article2.price,
             ),
             CartItem(
@@ -99,6 +105,7 @@ class TestCartItemRepo(unittest.TestCase):
                 article_id=self.article1.id,
                 cart_id=self.cart2.id,
                 quantity=2,
+                article_name=self.article1.name,
                 unit_price=self.article1.price,
             ),
         ]
@@ -127,6 +134,7 @@ class TestCartItemRepo(unittest.TestCase):
                 article_id=self.article1.id,
                 cart_id=self.cart1.id,
                 quantity=2,
+                article_name=self.article1.name,
                 unit_price=self.article1.price,
             ),
             CartItem(
@@ -134,6 +142,7 @@ class TestCartItemRepo(unittest.TestCase):
                 article_id=self.article2.id,
                 cart_id=self.cart1.id,
                 quantity=4,
+                article_name=self.article2.name,
                 unit_price=self.article2.price,
             ),
         ]
@@ -165,6 +174,7 @@ class TestCartItemRepo(unittest.TestCase):
             article_id=self.article1.id,
             cart_id=self.cart1.id,
             quantity=9,
+            article_name=self.article1.name,
             unit_price=3,
         )
 

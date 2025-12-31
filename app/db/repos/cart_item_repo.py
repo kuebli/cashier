@@ -28,8 +28,8 @@ class CartItemRepo:
             with self.db.connect() as conn:
                 cur = conn.cursor()
                 cur.execute(
-                    "INSERT INTO m2m_carts_articles (article_id, cart_id, quantity, unit_price) VALUES (?, ?, ?, ?)",
-                    (article.id, cart.id, quantity, article.price),
+                    "INSERT INTO m2m_carts_articles (article_id, cart_id, quantity, unit_price, article_name) VALUES (?, ?, ?, ?, ?)",
+                    (article.id, cart.id, quantity, article.price, article.name),
                 )
                 return cur.lastrowid
         except sqlite3.IntegrityError:
@@ -46,7 +46,7 @@ class CartItemRepo:
             with self.db.connect() as conn:
                 cur = conn.cursor()
                 cur.execute(
-                    "SELECT id, article_id, cart_id, quantity, unit_price, created_at, updated_at FROM m2m_carts_articles WHERE id =?",
+                    "SELECT id, article_id, cart_id, quantity, unit_price, article_name, created_at, updated_at FROM m2m_carts_articles WHERE id =?",
                     (cart_item_id,),
                 )
                 row = cur.fetchone()
@@ -60,6 +60,7 @@ class CartItemRepo:
                     cart_id=row["cart_id"],
                     quantity=row["quantity"],
                     unit_price=row["unit_price"],
+                    article_name=row["article_name"],
                     created_at=datetime.fromisoformat(row["created_at"]),
                     updated_at=datetime.fromisoformat(row["updated_at"]),
                 )
@@ -77,12 +78,12 @@ class CartItemRepo:
                 cur = conn.cursor()
                 if cart is not None:
                     cur.execute(
-                        "SELECT id, article_id, cart_id, quantity, unit_price, created_at, updated_at from m2m_carts_articles WHERE cart_id = ?",
+                        "SELECT id, article_id, cart_id, quantity, unit_price, article_name, created_at, updated_at from m2m_carts_articles WHERE cart_id = ?",
                         (cart.id,),
                     )
                 else:
                     cur.execute(
-                        "SELECT id, article_id, cart_id, quantity, unit_price, created_at, updated_at from m2m_carts_articles"
+                        "SELECT id, article_id, cart_id, quantity, unit_price, article_name, created_at, updated_at from m2m_carts_articles"
                     )
                 rows = cur.fetchall()
                 cart_items = []
@@ -94,6 +95,7 @@ class CartItemRepo:
                             cart_id=row["cart_id"],
                             quantity=row["quantity"],
                             unit_price=row["unit_price"],
+                            article_name=row["article_name"],
                             created_at=datetime.fromisoformat(row["created_at"]),
                             updated_at=datetime.fromisoformat(row["updated_at"]),
                         )

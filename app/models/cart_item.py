@@ -9,3 +9,4 @@ class CartItem(BaseModel):
     article_id: int
     quantity: int
     unit_price: float
+    article_name: str

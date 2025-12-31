@@ -7,7 +7,11 @@ from app.models.category import Category
 
 class TestCategoryRepo(unittest.TestCase):
     def setUp(self) -> None:
-        self.category_repo = CategoryRepo(DB(":memory:"))
+        self.db = DB(":memory:")
+        self.category_repo = CategoryRepo(self.db)
+
+    def tearDown(self) -> None:
+        self.db.close()
 
     def test_create(self):
         result = self.category_repo.create("Testcategory")

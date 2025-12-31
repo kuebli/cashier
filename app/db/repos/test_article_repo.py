@@ -13,6 +13,9 @@ class TestArticleRepo(unittest.TestCase):
         self.category_id = self.category_repo.create("Testcategory")
         self.article_repo = ArticleRepo(self.db, self.category_repo)
 
+    def tearDown(self) -> None:
+        self.db.close()
+
     def test_create(self):
         assert self.category_id is not None
         article_id = self.article_repo.create("Testarticle", 1.5, self.category_id)

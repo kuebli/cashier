@@ -56,6 +56,7 @@ class DB:
             cart_id INTEGER NOT NULL,
             quantity INTEGER NOT NULL,
             unit_price float NOT NULL,
+            article_name TEXT NOT NULL,
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY(article_id) REFERENCES articles(id) ON DELETE CASCADE,
