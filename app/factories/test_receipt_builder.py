@@ -3,7 +3,7 @@ import unittest
 
 from app.models.receipt import Receipt
 from app.models.receipt_item import ReceiptItem
-from app.services.receipt_builder import ReceiptBuilder
+from app.factories.receipt_builder import ReceiptBuilder
 
 
 class TestReceiptBuilder(unittest.TestCase):
