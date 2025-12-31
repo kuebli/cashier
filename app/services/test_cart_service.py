@@ -1,4 +1,3 @@
-from datetime import datetime
 import unittest
 
 from app.db.db import DB
@@ -7,7 +6,6 @@ from app.db.repos.cart_item_repo import CartItemRepo
 from app.db.repos.cart_repo import CartRepo
 from app.db.repos.category_repo import CategoryRepo
 from app.services.cart_service import CartService
-from app.services.checkout_service import CheckoutService
 
 
 class TestCartService(unittest.TestCase):
@@ -70,3 +68,6 @@ class TestCartService(unittest.TestCase):
         result = self.cart_service.get_cart_items(self.cart1.id)
 
         self.assertEqual(result, [self.cart_item1, self.cart_item2])
+
+    def test_get_cart_items_negative(self):
+        self.assertEqual(self.cart_service.get_cart_items(999), [])
