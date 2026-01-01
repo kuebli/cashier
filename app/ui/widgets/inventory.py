@@ -23,16 +23,28 @@ class Inventory(Widget):
     def compose(self) -> ComposeResult:
         yield Horizontal(
             Vertical(
+                Label("Categories", classes="title"),
                 ListView(id="inventory_categories_list"),
-                Button(
-                    label="Create Category",
-                    variant="primary",
-                    flat=True,
-                    id="inventory_categories_button_create",
+                HorizontalGroup(
+                    Button(
+                        label="Create Category",
+                        variant="primary",
+                        flat=True,
+                        id="inventory_categories_button_create",
+                    ),
+                    Button(
+                        label="Delete Category",
+                        variant="error",
+                        flat=True,
+                        id="inventory_categories_button_delete",
+                        disabled=True,
+                    ),
+                    id="inventory_categories_buttons",
                 ),
                 id="inventory_categories",
             ),
             Vertical(
+                Label("Articles", classes="title"),
                 DataTable(id="inventory_articles_table"),
                 HorizontalGroup(
                     Button(
@@ -54,31 +66,33 @@ class Inventory(Widget):
             id="inventory_content",
         )
 
-    def on_mount(self) -> None:
+    async def on_mount(self) -> None:
         table = self.query_one("#inventory_articles_table", DataTable)
         table.add_columns("ID", "Name", "Price", "Category", "Created at")
 
-        self.refresh_categories()
+        await self.refresh_categories()
         self.refresh_articles()
 
         self.query_one("#inventory_categories_list", ListView).focus()
+        lv = self.query_one("#inventory_categories_list", ListView)
+        lv.index = 0
 
-    def refresh_categories(self) -> None:
+    async def refresh_categories(self) -> None:
         categories = self.__inventory_service.get_categories()
+        self.query_one("#inventory_categories_button_delete", Button).disabled = True
         lv = self.query_one("#inventory_categories_list", ListView)
 
-        lv.clear()
+        await lv.clear()
 
-        def repopulate():
-            for category in categories:
-                lv.append(ListItem(Label(category.name), id=f"cat-{category.id}"))
+        await lv.append(ListItem(Label("(All)"), id="cat-all"))
 
-        self.call_after_refresh(repopulate)
+        for category in categories:
+            await lv.append(ListItem(Label(category.name), id=f"cat-{category.id}"))
 
-    def refresh_articles(self, category_id: Optional[int] = None) -> None:
+    def refresh_articles(self) -> None:
         self.__selected_article_id = None
         self.query_one("#inventory_articles_button_delete", Button).disabled = True
-        articles = self.__inventory_service.get_articles(category_id)
+        articles = self.__inventory_service.get_articles(self.__selected_category_id)
         table = self.query_one("#inventory_articles_table", DataTable)
         table.clear(columns=False)
 
@@ -99,11 +113,24 @@ class Inventory(Widget):
     def on_list_view_selected(self, event: ListView.Selected) -> None:
         if event.list_view.id != "inventory_categories_list":
             return
-        item_id = event.item.id  # e.g. "cat-3"
+
+        item_id = event.item.id
+
+        if item_id == "cat-all":
+            self.__selected_category_id = None
+            self.query_one(
+                "#inventory_categories_button_delete", Button
+            ).disabled = True
+            self.refresh_articles()
+            return
+
         if item_id and item_id.startswith("cat-"):
             category_id = int(item_id.split("-", 1)[1])
             self.__selected_category_id = category_id
-            self.refresh_articles(category_id)
+            self.query_one(
+                "#inventory_categories_button_delete", Button
+            ).disabled = False
+            self.refresh_articles()
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         match event.button.id:
@@ -113,6 +140,8 @@ class Inventory(Widget):
                 self.run_worker(self.__create_article_workflow(), exclusive=True)
             case "inventory_articles_button_delete":
                 self.run_worker(self.__delete_article_workflow(), exclusive=True)
+            case "inventory_categories_button_delete":
+                self.run_worker(self.__delete_category_workflow(), exclusive=True)
             case _:
                 return
 
@@ -125,7 +154,23 @@ class Inventory(Widget):
         if category_id is None:
             return
 
-        self.refresh_categories()
+        await self.refresh_categories()
+
+    async def __delete_category_workflow(self) -> None:
+        if self.__selected_category_id is None:
+            return
+
+        if self.__inventory_service.delete_category(self.__selected_category_id):
+            self.app.notify("Category has been deleted.", severity="information")
+            self.__selected_category_id = None
+            self.query_one(
+                "#inventory_categories_button_delete", Button
+            ).disabled = True
+            self.query_one("#inventory_articles_button_delete", Button).disabled = True
+            await self.refresh_categories()
+            self.refresh_articles()
+        else:
+            self.app.notify("Category could not be deleted", severity="warning")
 
     async def __create_article_workflow(self) -> None:
         categories = self.__inventory_service.get_categories()
@@ -143,9 +188,9 @@ class Inventory(Widget):
         if article_id is None:
             return
 
-        self.refresh_articles(payload["category_id"])
+        self.refresh_articles()
 
-    async def __delete_article_workflow(self):
+    async def __delete_article_workflow(self) -> None:
         if self.__selected_article_id is None:
             return
 
@@ -157,7 +202,7 @@ class Inventory(Widget):
         self.__selected_article_id = None
         self.query_one("#inventory_articles_button_delete", Button).disabled = True
 
-        self.refresh_articles(self.__selected_category_id)
+        self.refresh_articles()
 
     def on_data_table_cell_selected(self, event: DataTable.CellSelected) -> None:
         if event.data_table.id != "inventory_articles_table":
