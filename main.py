@@ -1,8 +1,9 @@
-from app.db.db import DB
+from app.ui.cashier_app import CashierApp
 
 
 def main():
-    db = DB()
+    cashier_app = CashierApp()
+    cashier_app.run()
 
 
 if __name__ == "__main__":
