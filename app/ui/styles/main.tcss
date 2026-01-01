@@ -26,6 +26,11 @@
   align: right top;
 }
 
+
+#inventory_articles Button {
+  margin-left: 1;
+}
+
 ModalScreen {
     align: center middle;
   }

@@ -2,6 +2,7 @@ from typing import Optional
 from textual.app import ComposeResult
 from textual.containers import (
     Horizontal,
+    HorizontalGroup,
     Vertical,
 )
 from textual.widget import Widget
@@ -16,6 +17,8 @@ class Inventory(Widget):
     def __init__(self, inventory_service: InventoryService):
         super().__init__()
         self.__inventory_service = inventory_service
+        self.__selected_category_id: Optional[int] = None
+        self.__selected_article_id: Optional[int] = None
 
     def compose(self) -> ComposeResult:
         yield Horizontal(
@@ -31,11 +34,20 @@ class Inventory(Widget):
             ),
             Vertical(
                 DataTable(id="inventory_articles_table"),
-                Button(
-                    label="Create Article",
-                    variant="primary",
-                    flat=True,
-                    id="inventory_articles_button_create",
+                HorizontalGroup(
+                    Button(
+                        label="Create Article",
+                        variant="primary",
+                        flat=True,
+                        id="inventory_articles_button_create",
+                    ),
+                    Button(
+                        label="Delete Article",
+                        variant="error",
+                        flat=True,
+                        id="inventory_articles_button_delete",
+                        disabled=True,
+                    ),
                 ),
                 id="inventory_articles",
             ),
@@ -64,6 +76,8 @@ class Inventory(Widget):
         self.call_after_refresh(repopulate)
 
     def refresh_articles(self, category_id: Optional[int] = None) -> None:
+        self.__selected_article_id = None
+        self.query_one("#inventory_articles_button_delete", Button).disabled = True
         articles = self.__inventory_service.get_articles(category_id)
         table = self.query_one("#inventory_articles_table", DataTable)
         table.clear(columns=False)
@@ -77,7 +91,7 @@ class Inventory(Widget):
             table.add_row(
                 str(article.id),
                 article.name,
-                f"{article.price}.2f",
+                str(article.price),
                 str(article.category_id),
                 created_at,
             )
@@ -88,6 +102,7 @@ class Inventory(Widget):
         item_id = event.item.id  # e.g. "cat-3"
         if item_id and item_id.startswith("cat-"):
             category_id = int(item_id.split("-", 1)[1])
+            self.__selected_category_id = category_id
             self.refresh_articles(category_id)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -96,6 +111,8 @@ class Inventory(Widget):
                 self.run_worker(self.__create_category_workflow(), exclusive=True)
             case "inventory_articles_button_create":
                 self.run_worker(self.__create_article_workflow(), exclusive=True)
+            case "inventory_articles_button_delete":
+                self.run_worker(self.__delete_article_workflow(), exclusive=True)
             case _:
                 return
 
@@ -127,3 +144,28 @@ class Inventory(Widget):
             return
 
         self.refresh_articles(payload["category_id"])
+
+    async def __delete_article_workflow(self):
+        if self.__selected_article_id is None:
+            return
+
+        deleted = self.__inventory_service.delete_article(self.__selected_article_id)
+        if not deleted:
+            self.app.notify("Could not delete article", severity="warning")
+            return
+
+        self.__selected_article_id = None
+        self.query_one("#inventory_articles_button_delete", Button).disabled = True
+
+        self.refresh_articles(self.__selected_category_id)
+
+    def on_data_table_cell_selected(self, event: DataTable.CellSelected) -> None:
+        if event.data_table.id != "inventory_articles_table":
+            return
+
+        table = event.data_table
+        row_key = event.cell_key.row_key
+        row = table.get_row(row_key)
+
+        self.__selected_article_id = int(row[0])
+        self.query_one("#inventory_articles_button_delete", Button).disabled = False
