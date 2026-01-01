@@ -21,7 +21,7 @@ class ReceiptBuilder:
         return body
 
     def __build_footer(self, paid_at: datetime) -> str:
-        footer = f"Paid at: {paid_at.strftime('%d.%m.%Y %H:%M')}\n"
+        footer = f"Paid at: {paid_at.strftime('%d.%m.%Y %H:%M')}\n\n"
         footer += "Thank you very much for your purchase!"
         return footer
 

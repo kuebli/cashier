@@ -20,6 +20,7 @@ class TestReceiptBuilder(unittest.TestCase):
 |**Total**|||**18.5**|
 
 Paid at: {datetime.strftime(fixed_time, "%d.%m.%Y %H:%M")}
+
 Thank you very much for your purchase!
 """
 
