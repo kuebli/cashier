@@ -1,5 +1,4 @@
 from typing import Optional
-from textual import work
 from textual.app import ComposeResult
 from textual.containers import (
     Horizontal,
@@ -9,6 +8,7 @@ from textual.widget import Widget
 from textual.widgets import Button, DataTable, Label, ListItem, ListView
 
 from app.services.inventory_service import InventoryService
+from app.ui.screens.create_article_modal import CreateArticleModal
 from app.ui.screens.create_category_modal import CreateCategoryModal
 
 
@@ -77,7 +77,7 @@ class Inventory(Widget):
             table.add_row(
                 str(article.id),
                 article.name,
-                str(article.price),
+                f"{article.price}.2f",
                 str(article.category_id),
                 created_at,
             )
@@ -90,20 +90,40 @@ class Inventory(Widget):
             category_id = int(item_id.split("-", 1)[1])
             self.refresh_articles(category_id)
 
-    @work(exclusive=True)
-    async def on_button_pressed(self, event: Button.Pressed) -> None:
-        if event.button.id != "inventory_categories_button_create":
-            return
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        match event.button.id:
+            case "inventory_categories_button_create":
+                self.run_worker(self.__create_category_workflow(), exclusive=True)
+            case "inventory_articles_button_create":
+                self.run_worker(self.__create_article_workflow(), exclusive=True)
+            case _:
+                return
 
+    async def __create_category_workflow(self) -> None:
         name = await self.app.push_screen_wait(CreateCategoryModal())
-
         if name is None:
-            self.log("no name provided")
             return
 
         category_id = self.__inventory_service.create_category(name)
-
         if category_id is None:
             return
 
         self.refresh_categories()
+
+    async def __create_article_workflow(self) -> None:
+        categories = self.__inventory_service.get_categories()
+        if not categories:
+            self.app.notify("Please create a category first.", severity="warning")
+            return
+
+        payload = await self.app.push_screen_wait(CreateArticleModal(categories))
+        if payload is None:
+            return
+
+        article_id = self.__inventory_service.create_article(
+            payload["name"], payload["price"], payload["category_id"]
+        )
+        if article_id is None:
+            return
+
+        self.refresh_articles(payload["category_id"])
