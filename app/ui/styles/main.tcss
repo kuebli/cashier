@@ -1,3 +1,8 @@
+.push_right {
+  width: 1fr;
+  align: right middle;
+  }
+
 #nav {
     padding: 1 2;
   }
@@ -7,12 +12,67 @@
   height: 1fr;
 }
 
-#inventory_content {
+#checkout_content {
+  height: 1fr;
+  margin-top: 1;
+}
+
+#checkout_cart_items {
+  margin-right: 2;
+}
+
+#checkout_cart_items_table {
+  margin-bottom: 1;
+  margin-top: 1;
   height: 1fr;
 }
 
+#checkout_settings_article_search {
+  border: none;
+  padding: 1;
+  margin-bottom: 1;
+  margin-top: 1;
+}
+
+#checkout_settings_article_list {
+  height: 15;
+}
+
+#checkout_settings_article_list ListItem {
+  padding: 1 2;
+}
+
+#checkout_settings_button_add {
+  margin-bottom: 1;
+}
+
+#checkout_settings_total {
+  height: 1fr;
+  align: center bottom;
+}
+
+#checkout_settings_total_display {
+  width: 1fr;
+  border: wide rgba(128, 128, 128, 0.1);
+  content-align: right middle;
+  padding: 1 2;
+}
+
+#checkout_settings_buttons Button {
+  width: 1fr;
+}
+
+#checkout_settings_buttons Button:first-child {
+  margin-right: 1;
+}
+
+#inventory_content {
+  height: 1fr;
+  margin-top: 1;
+}
+
 #inventory_content .title {
-  text-style: bold;
+  margin-bottom: 1;
 }
 
 #inventory_categoires {
@@ -21,8 +81,8 @@
 }
 
 #inventory_categories ListView {
-  margin-right: 1;
-  padding: 1 0;
+  margin-right: 2;
+  margin-bottom: 1;
 }
 
 #inventory_categories ListItem {
@@ -31,6 +91,7 @@
 
 #inventory_articles_table {
   height: 1fr;
+  margin-bottom: 1;
 }
 
 #inventory_articles {

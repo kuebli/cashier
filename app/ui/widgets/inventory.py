@@ -73,7 +73,6 @@ class Inventory(Widget):
         await self.refresh_categories()
         self.refresh_articles()
 
-        self.query_one("#inventory_categories_list", ListView).focus()
         lv = self.query_one("#inventory_categories_list", ListView)
         lv.index = 0
 

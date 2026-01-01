@@ -41,10 +41,12 @@ class CashierApp(App):
 
     def compose(self):
         yield Header()
-        with TabbedContent(id="nav"):
-            with TabPane(title="Checkout", id="checkout"):
-                # yield Checkout(self.__checkout_service)
-                pass
+        with TabbedContent(id="nav", initial="checkout"):
+            with TabPane(
+                title="Checkout",
+                id="checkout",
+            ):
+                yield Checkout(self.__checkout_service)
             with TabPane(title="Inventory", id="inventory"):
                 yield Inventory(self.__inventory_service)
             with TabPane(title="Purchases", id="purchases"):
