@@ -95,6 +95,11 @@ class CheckoutService:
 
         return False
 
+    def get_cart_items(self) -> List[CartItem]:
+        if self.__cart is None:
+            return []
+        return self.cart_item_repo.get_all(self.__cart)
+
     def checkout(self) -> Optional[Receipt]:
         """
         updates the cart entity in the database and sets paid = true and paid_at to current timestamp
@@ -113,6 +118,8 @@ class CheckoutService:
                             unit_price=item.unit_price,
                         )
                     )
-                return Receipt(self.__cart.paid_at, receipt_items)
+                reciept = Receipt(self.__cart.paid_at, receipt_items)
+                self.__cart = None
+                return reciept
 
         return None
