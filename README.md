@@ -39,7 +39,7 @@ A terminal-based Point of Sale (POS) system built with Textual. This project was
 
 ##### Requirements
 
-- Python 3.11+
+- Python 3.14+
 - [uv](https://docs.astral.sh/uv/) (recommended)
 
 ##### Installation
@@ -57,7 +57,7 @@ source .venv/bin/activate
 uv sync
 
 # run the application
-uv run python main.py
+uv run main.py
 
 # the data layer and services are unit-tested
 # add execution rights to test script
