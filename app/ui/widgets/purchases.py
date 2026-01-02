@@ -43,7 +43,12 @@ class Purchases(Widget):
 
     def on_mount(self) -> None:
         table = self.query_one("#purchases_carts_table", DataTable)
-        table.add_columns("ID", "Status", "Paid at", "Created at")
+        table.add_columns(
+            "ID",
+            "Status",
+            "Paid at",
+            "Created at",
+        )
         self.__refresh_carts()
 
     def __refresh_carts(self) -> None:

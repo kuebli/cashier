@@ -132,6 +132,10 @@
   min-height: 10;
 }
 
+DataTable {
+    width: 1fr;
+  }
+
 ModalScreen {
     align: center middle;
   }
