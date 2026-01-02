@@ -85,9 +85,9 @@ class Checkout(Widget):
     async def __refresh_articles(self) -> None:
         self.query_one("#checkout_settings_button_add", Button).disabled = True
         self.__article_selected = None
+        lv = self.query_one("#checkout_settings_article_list", ListView)
+        await lv.clear()
         if len(self.__articles_found) > 0:
-            lv = self.query_one("#checkout_settings_article_list", ListView)
-            await lv.clear()
             for article in self.__articles_found:
                 await lv.append(
                     ListItem(
@@ -126,9 +126,10 @@ class Checkout(Widget):
             self.__search_timer.stop()
 
         # Start a new debounce timer (300ms)
+        text = event.input.value
         self.__search_timer = self.set_timer(
             0.3,
-            lambda: self._perform_search(event.input.value),
+            lambda: self._perform_search(text),
         )
 
     def _perform_search(self, text: str) -> None:
@@ -175,6 +176,7 @@ class Checkout(Widget):
             for a in self.__articles_found:
                 if a.id == self.__article_selected:
                     article = a
+                    break
             if article is None:
                 return
             added = self.__checkout_service.add_article(article, 1)
@@ -220,6 +222,9 @@ class Checkout(Widget):
         self.query_one("#checkout_settings_button_add", Button).disabled = True
         self.query_one("#checkout_settings_button_checkout", Button).disabled = True
         self.query_one("#checkout_settings_button_abort", Button).disabled = True
+
+        if self.__search_timer:
+            self.__search_timer.stop()
 
         self.query_one("#checkout_settings_article_search", Input).value = ""
         self.__article_selected = None
