@@ -6,7 +6,7 @@ from app.models.receipt import Receipt
 from app.factories.receipt_builder import ReceiptBuilder
 
 
-class CheckoutRecieptModal(ModalScreen):
+class CheckoutReceiptModal(ModalScreen):
     def __init__(self, receipt: Receipt):
         super().__init__()
         self.__reciept = receipt

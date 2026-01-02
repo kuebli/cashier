@@ -5,7 +5,7 @@ from textual.widgets import Button, DataTable, Digits, Input, Label, ListItem, L
 
 from app.models.article import Article
 from app.services.checkout_service import CheckoutService
-from app.ui.screens.checkout_receipt_modal import CheckoutRecieptModal
+from app.ui.screens.checkout_receipt_modal import CheckoutReceiptModal
 
 
 class Checkout(Widget):
@@ -84,7 +84,7 @@ class Checkout(Widget):
     async def __refresh_articles(self) -> None:
         self.query_one("#checkout_settings_button_add", Button).disabled = True
         self.__article_selected = None
-        if len(self.__articles_found) >= 0:
+        if len(self.__articles_found) > 0:
             lv = self.query_one("#checkout_settings_article_list", ListView)
             await lv.clear()
             for article in self.__articles_found:
@@ -108,9 +108,13 @@ class Checkout(Widget):
                 cart_item.article_name,
                 str(cart_item.unit_price),
                 str(cart_item.quantity),
-                f"CHF {line_total}",
+                f"CHF {line_total:.2f}",
             )
-        self.query_one("#checkout_settings_total_display", Digits).update(str(total))
+        self.query_one("#checkout_settings_total_display", Digits).update(
+            f"{total:.2f}"
+        )
+        self.__cart_item_selected = None
+        self.query_one("#checkout_cart_items_button_delete", Button).disabled = True
 
     async def on_input_submitted(self, event: Input.Submitted) -> None:
         if event.input.id == "checkout_settings_article_search":
@@ -139,17 +143,17 @@ class Checkout(Widget):
     async def on_button_pressed(self, event: Button.Pressed) -> None:
         match event.button.id:
             case "checkout_settings_button_add":
-                self.__add_article_to_cart()
+                self.run_worker(self.__add_article_to_cart(), exclusive=True)
             case "checkout_cart_items_button_delete":
-                self.__remove_cart_item_from_cart()
+                self.run_worker(self.__remove_cart_item_from_cart(), exclusive=True)
             case "checkout_settings_button_abort":
-                await self.__abort()
+                self.run_worker(self.__abort(), exclusive=True)
             case "checkout_settings_button_checkout":
-                await self.__checkout()
+                self.run_worker(self.__checkout(), exclusive=True)
             case _:
                 return
 
-    def __add_article_to_cart(self) -> None:
+    async def __add_article_to_cart(self) -> None:
         if self.__article_selected is not None:
             article = None
             for a in self.__articles_found:
@@ -162,13 +166,12 @@ class Checkout(Widget):
                 self.query_one(
                     "#checkout_settings_button_checkout", Button
                 ).disabled = False
-                self.__refresh_cart_items()
                 self.query_one(
                     "#checkout_settings_button_abort", Button
                 ).disabled = False
                 self.__refresh_cart_items()
 
-    def __remove_cart_item_from_cart(self) -> None:
+    async def __remove_cart_item_from_cart(self) -> None:
         if self.__cart_item_selected is not None:
             removed = self.__checkout_service.remove_article(self.__cart_item_selected)
             if removed:
@@ -193,7 +196,7 @@ class Checkout(Widget):
         receipt = self.__checkout_service.checkout()
         self.log("checkout", receipt)
         if receipt is not None:
-            self.app.push_screen(CheckoutRecieptModal(receipt))
+            self.app.push_screen(CheckoutReceiptModal(receipt))
             await self.__reset()
 
     async def __reset(self) -> None:
