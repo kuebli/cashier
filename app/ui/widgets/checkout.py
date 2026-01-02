@@ -16,6 +16,7 @@ class Checkout(Widget):
         self.__article_selected: Optional[int] = None
         self.__cart_item_selected: Optional[int] = None
         self.quantity: List[Tuple[str, str]] = [(str(x), str(x)) for x in range(1, 10)]
+        self.__search_timer = None
 
     def on_mount(self) -> None:
         self.query_one("#checkout_settings_article_search", Input).focus()
@@ -116,13 +117,28 @@ class Checkout(Widget):
         self.__cart_item_selected = None
         self.query_one("#checkout_cart_items_button_delete", Button).disabled = True
 
-    async def on_input_submitted(self, event: Input.Submitted) -> None:
-        if event.input.id == "checkout_settings_article_search":
-            if len(event.input.value) >= 3:
-                self.__articles_found = self.__checkout_service.search_article(
-                    event.input.value
-                )
-                await self.__refresh_articles()
+    def on_input_changed(self, event: Input.Changed) -> None:
+        if event.input.id != "checkout_settings_article_search":
+            return
+
+        # Cancel previous debounce timer
+        if self.__search_timer:
+            self.__search_timer.stop()
+
+        # Start a new debounce timer (300ms)
+        self.__search_timer = self.set_timer(
+            0.3,
+            lambda: self._perform_search(event.input.value),
+        )
+
+    def _perform_search(self, text: str) -> None:
+        if len(text) < 2:
+            self.__articles_found = []
+            self.run_worker(self.__refresh_articles(), exclusive=True)
+            return
+
+        self.__articles_found = self.__checkout_service.search_article(text)
+        self.run_worker(self.__refresh_articles(), exclusive=True)
 
     def on_list_view_selected(self, event: ListView.Selected) -> None:
         if event.list_view.id == "checkout_settings_article_list":
