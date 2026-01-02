@@ -113,12 +113,19 @@
   margin-top: 1;
 }
 
-#purchases_table {
-  margin-top: 1;
-  margin-bottom: 1;
+#purchases_carts {
   margin-right: 2;
 }
 
+#purchases_carts_table {
+  margin-top: 1;
+  margin-bottom: 1;
+  height: 1fr;
+}
+
+#purchases_carts_switch_label {
+  padding: 1 2;
+}
 
 #purchases_receipt_markdown {
   border: wide rgba(128, 128, 128, 0.1);
