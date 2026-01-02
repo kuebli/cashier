@@ -108,6 +108,23 @@
   margin-right: 1;
 }
 
+#purchases_content {
+  height: 1fr;
+  margin-top: 1;
+}
+
+#purchases_table {
+  margin-top: 1;
+  margin-bottom: 1;
+  margin-right: 2;
+}
+
+
+#purchases_receipt_markdown {
+  border: wide rgba(128, 128, 128, 0.1);
+  min-height: 10;
+}
+
 ModalScreen {
     align: center middle;
   }

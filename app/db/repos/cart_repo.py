@@ -34,10 +34,16 @@ class CartRepo:
 
                 items = []
 
+                paid_at = (
+                    datetime.fromisoformat(row["paid_at"])
+                    if row["paid_at"] is not None
+                    else None
+                )
+
                 return Cart(
                     id=row["id"],
                     paid=row["paid"],
-                    paid_at=row["paid_at"],
+                    paid_at=paid_at,
                     created_at=datetime.fromisoformat(row["created_at"]),
                     updated_at=datetime.fromisoformat(row["updated_at"]),
                     items=items,
@@ -59,11 +65,16 @@ class CartRepo:
                 carts = []
 
                 for row in rows:
+                    paid_at = (
+                        datetime.fromisoformat(row["paid_at"])
+                        if row["paid_at"] is not None
+                        else None
+                    )
                     carts.append(
                         Cart(
                             id=row["id"],
                             paid=row["paid"],
-                            paid_at=row["paid_at"],
+                            paid_at=paid_at,
                             created_at=datetime.fromisoformat(row["created_at"]),
                             updated_at=datetime.fromisoformat(row["updated_at"]),
                             items=[],
