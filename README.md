@@ -1,6 +1,6 @@
 # Cashier — Terminal-Based POS System
 
-A terminal-based Point of Sale (POS) system built with Textual. This project was created as a learning project for [Boot.dev - First Personal Project](https://www.boot.dev/lessons/d4dc954b-06cf-4f7b-bc36-fa9936c245ec).
+A terminal-based Point of Sale (POS) system built with Textual. This project was created as a learning project for [Boot.dev - First Personal Project](https://www.boot.dev/courses/build-personal-project-1).
 
 ![Cashier Application Overview](images/cashier_overview.png)
 
