@@ -54,7 +54,7 @@ uv venv
 source .venv/bin/activate
 
 # install dependencies
-uv add -r requirements.txt
+uv sync
 
 # run the application
 uv run python main.py
