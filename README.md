@@ -6,7 +6,7 @@ A terminal-based Point of Sale (POS) system built with Textual. This project was
 
 ### Features
 
-##### Checkout
+#### Checkout
 
 - Search articles with debounce
 - Add / remove items from cart
@@ -14,20 +14,20 @@ A terminal-based Point of Sale (POS) system built with Textual. This project was
 - Abort or complete checkout
 - Receipt generation
 
-##### Article Management
+#### Article Management
 
 - Create & delete categories
 - Create & delete articles
 - Filter articles by category
 - Safe deletion handling
 
-##### Purchases
+#### Purchases
 
 - View all carts
 - Filter paid carts
 - View receipts
 
-##### Architecture
+#### Architecture
 
 - Repository layer
 - Service layer
@@ -37,12 +37,12 @@ A terminal-based Point of Sale (POS) system built with Textual. This project was
 
 ### Installation & Running
 
-##### Requirements
+#### Requirements
 
 - Python 3.14+
 - [uv](https://docs.astral.sh/uv/) (recommended)
 
-##### Installation
+#### Installation
 
 ```sh
 # clone the repository
@@ -68,7 +68,7 @@ chmod +x ./test.sh
 
 ### Architecual Design
 
-##### Data Layer
+#### Data Layer
 
 Responsible for all database operations.
 
@@ -82,7 +82,7 @@ Examples:
 - CartRepo
 - CategoryRepo
 
-##### Service Layer
+#### Service Layer
 
 Contains all business logic.
 
@@ -90,7 +90,7 @@ Contains all business logic.
 - CheckoutService
 - CartService
 
-##### Presentation LayerHandles
+#### Presentation Layer
 
 TUI based on Texutal. Responsible for:
 
@@ -106,7 +106,7 @@ Includes:
 - Purchases screen
 - Modal dialogs
 
-##### Data Flow
+#### Data Flow
 
 ```
 UI (Textual)
@@ -118,7 +118,7 @@ Repository Layer
 SQLite
 ```
 
-##### Folder Structure
+#### Folder Structure
 
 ```
 app/
